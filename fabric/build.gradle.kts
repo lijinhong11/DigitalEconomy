@@ -26,7 +26,7 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_api_version")}+${project.property("minecraft_version")}")
 
     implementation(project(":common"))
-    shadow(project(":common", configuration = "namedElements"))
+    shadow(project(":common", configuration = "default"))
 }
 
 tasks.processResources {

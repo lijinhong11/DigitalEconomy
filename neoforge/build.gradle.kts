@@ -63,7 +63,7 @@ dependencies {
     implementation("net.neoforged:neoforge:${project.property("neoforge_version")}")
 
     implementation(project(":common"))
-    shadow(project(":common", configuration = "namedElements"))
+    shadow(project(":common", configuration = "default"))
 }
 
 tasks.processResources {

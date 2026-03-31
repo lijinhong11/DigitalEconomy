@@ -1,15 +1,15 @@
-package com.example.neoforge;
+package io.github.lijinhong11.digitaleconomy.neoforge;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-@Mod(ExampleMod.MOD_ID)
-public class ExampleMod {
+@Mod(DigitalEconomy.MOD_ID)
+public class DigitalEconomy {
     public static final String MOD_ID = "example";
 
-    public ExampleMod() {
+    public DigitalEconomy() {
         NeoForge.EVENT_BUS.register(this);
     }
 

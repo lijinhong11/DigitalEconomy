@@ -7,7 +7,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "examplemod"
+rootProject.name = "digitaleconomy"
 
 include("common")
 include("fabric")
