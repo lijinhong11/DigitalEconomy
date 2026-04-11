@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(DigitalEconomy.MOD_ID)
 public class DigitalEconomy {
-    public static final String MOD_ID = "example";
+    public static final String MOD_ID = "digitaleconomy";
 
     public DigitalEconomy() {
         NeoForge.EVENT_BUS.register(this);

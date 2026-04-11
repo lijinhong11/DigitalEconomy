@@ -2,7 +2,7 @@ plugins {
     java
     idea
     id("com.gradleup.shadow")
-    id("fabric-loom") version "1.10-SNAPSHOT"
+    id("fabric-loom")
 }
 
 base {
