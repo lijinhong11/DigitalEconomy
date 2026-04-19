@@ -106,6 +106,6 @@ public abstract class AbstractDigitalEconomy implements EconomyProvider {
     }
 
     protected boolean isDefaultCurrency(Currency currency) {
-        return defaultCurrency.is(currency.id());
+        return defaultCurrency.equals(currency);
     }
 }
