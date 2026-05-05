@@ -22,7 +22,7 @@ public class DigitalEconomyConfig {
     private BigDecimal minimumPayAmount = new BigDecimal("0.01");
     private boolean payToggleDefault = true;
 
-    private DatabaseSettings database;
+    private DatabaseSettings database = new DatabaseSettings();
 
     private String currencyDisplayFormat = "#,##0.00";
 
@@ -39,20 +39,23 @@ public class DigitalEconomyConfig {
     @AllArgsConstructor
     public static class DatabaseSettings {
         private @NotNull DatabaseType type = DatabaseType.SQLITE;
+        private String host = "localhost";
+        private int port = 3306;
         private String userName = "root";
         private String password = "123456";
         private String database = "digitaleconomy";
+        private String sqliteFile = "digitaleconomy.db";
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CurrencySettings {
-        private @NotNull String id;
-        private String currencyNameSingular = "";
-        private String currencyNamePlural = "";
-        private BigDecimal minBalance = new BigDecimal(0);
-        private BigDecimal startingBalance = new BigDecimal(0);
+        private @NotNull String id = "default";
+        private String currencyNameSingular = "coin";
+        private String currencyNamePlural = "coins";
+        private BigDecimal minBalance = BigDecimal.ZERO;
+        private BigDecimal startingBalance = BigDecimal.ZERO;
         private BigDecimal maxBalance = new BigDecimal(Long.MAX_VALUE);
 
         public final Currency toTreasuryCurrency() {

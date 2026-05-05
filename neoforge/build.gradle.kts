@@ -61,9 +61,12 @@ sourceSets {
 
 dependencies {
     implementation("net.neoforged:neoforge:${project.property("neoforge_version")}")
+    compileOnly("io.github.lijinhong11:Treasury:1.0.2")
+    implementation("io.github.lijinhong11:MDatabase:1.1.1")
 
-    implementation(project(":common"))
-    shadow(project(":common", configuration = "default"))
+    implementation(project(":common", configuration = "namedElements"))
+    shadow(project(":common", configuration = "namedElements"))
+    shadow("io.github.lijinhong11:MDatabase:1.1.1")
 }
 
 tasks.processResources {

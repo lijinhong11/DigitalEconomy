@@ -4,8 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import io.github.lijinhong11.digitaleconomy.config.DigitalEconomyConfig;
+import io.github.lijinhong11.digitaleconomy.data.PlayerDataController;
+import io.github.lijinhong11.digitaleconomy.dock.AbstractDigitalEconomy;
 import io.github.lijinhong11.digitaleconomy.enums.EconomyLogType;
 import io.github.lijinhong11.digitaleconomy.enums.Side;
+import io.github.lijinhong11.treasury.Treasury;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -22,6 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @UtilityClass
@@ -35,6 +41,16 @@ public class DigitalEconomyCommon {
     private static Side side;
 
     private static MinecraftServer server;
+    private static Path dataPath;
+
+    @Getter
+    private static DigitalEconomyConfig config;
+
+    @Getter
+    private static PlayerDataController dataController;
+
+    @Getter
+    private static AbstractDigitalEconomy economyProvider;
 
     private static final Logger LOGGER = Logger.getLogger("DigitalEconomy");
 
@@ -44,6 +60,7 @@ public class DigitalEconomyCommon {
 
     public static DigitalEconomyConfig init(Path dataPath, Side side, @Nullable MinecraftServer server) {
         DigitalEconomyCommon.side = side;
+        DigitalEconomyCommon.dataPath = dataPath;
 
         if (side == Side.SERVER) {
             DigitalEconomyCommon.server = server;
@@ -67,10 +84,25 @@ public class DigitalEconomyCommon {
 
         try {
             DigitalEconomyConfig cfg = GSON.fromJson(Files.readString(configPath), DigitalEconomyConfig.class);
+            config = cfg;
 
             if (cfg.isEconomyLogs()) {
                 Path logs = dataPath.resolve("logs");
                 Files.createDirectories(logs);
+            }
+
+            if (Treasury.economy().isRegistered("DigitalEconomy")) {
+                economyProvider = (AbstractDigitalEconomy) Treasury.economy().getByName("DigitalEconomy");
+                return cfg;
+            }
+
+            dataController = new PlayerDataController(cfg, dataPath);
+            economyProvider = new AbstractDigitalEconomy(cfg, dataController);
+            if (!Treasury.economy().isRegistered(economyProvider.getName())) {
+                Treasury.economy().register(economyProvider);
+            }
+            if (!Treasury.economy().hasPrimary()) {
+                Treasury.economy().setPrimary(economyProvider.getName());
             }
 
             return cfg;
@@ -107,7 +139,35 @@ public class DigitalEconomyCommon {
         }
     }
 
-    public static void economyLog(EconomyLogType type, Player source, @Nullable Player to, BigDecimal value) {
+    public static void economyLog(EconomyLogType type, UUID source, @Nullable UUID to, BigDecimal value) {
+        if (config == null || dataPath == null || !config.isEconomyLogs()) {
+            return;
+        }
+
+        String format = switch (type) {
+            case ADD -> config.getEconomyLogAddFormat();
+            case TAKE -> config.getEconomyLogTakeFormat();
+            case PAY -> config.getEconomyLogPayFormat();
+        };
+
+        String timestamp = DateTimeFormatter.ofPattern(config.getEconomyLogDateFormat()).format(LocalDateTime.now());
+        String message = format
+                .replace("%player%", source.toString())
+                .replace("%source%", source.toString())
+                .replace("%destination%", to == null ? "" : to.toString())
+                .replace("%value%", economyProvider == null ? value.toPlainString() : economyProvider.format(value));
+
+        try {
+            Files.writeString(
+                    dataPath.resolve("logs").resolve("economy.log"),
+                    "[" + timestamp + "] " + message + System.lineSeparator(),
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+        } catch (IOException e) {
+            LOGGER.warning("Failed to write economy log: " + e.getMessage());
+        }
 
     }
 }
